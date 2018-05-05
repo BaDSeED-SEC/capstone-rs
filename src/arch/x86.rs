@@ -31,7 +31,6 @@ impl X86OperandType {
             X86_OP_REG => Reg(RegId(unsafe { value.reg } as RegIdInt)),
             X86_OP_IMM => Imm(unsafe { value.imm }),
             X86_OP_MEM => Mem(X86OpMem(unsafe { value.mem })),
-            X86_OP_FP => Fp(unsafe { value.fp }),
             X86_OP_INVALID => Invalid,
         }
     }
@@ -64,9 +63,6 @@ pub enum X86OperandType {
 
     /// Memory
     Mem(X86OpMem),
-
-    /// Floating point
-    Fp(f64),
 
     /// Invalid
     Invalid,
@@ -246,23 +242,6 @@ mod test {
             (X86_OP_REG, cs_x86_op__bindgen_ty_1 { reg: 0 }),
             Reg(RegId(0)),
         );
-    }
-
-    #[test]
-    fn test_x86_op_eq() {
-        use std::f64;
-
-        let a1 = X86Operand {
-            op_type: X86OperandType::Fp(1.0),
-            ..Default::default()
-        };
-        let a2 = X86Operand {
-            op_type: X86OperandType::Fp(f64::NAN),
-            ..Default::default()
-        };
-
-        assert_eq!(a1, a1.clone());
-        assert_ne!(a1, a2.clone());
     }
 
     #[test]

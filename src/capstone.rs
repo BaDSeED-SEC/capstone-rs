@@ -383,10 +383,41 @@ impl Capstone {
         Ok(unsafe { cs_reg_read(self.csh, &insn.0 as *const cs_insn, reg_id.0 as c_uint) })
     }
 
+    pub fn access(&self, insn: &Insn) -> CsResult<(Vec<u16>, Vec<u16>)> {
+        self.insn_detail(insn)?;
+
+        let mut regs_read = vec![0u16; 64];
+        let mut regs_write = vec![0u16; 64];
+        let rr_ptr: *mut u16 = regs_read.as_mut_ptr();
+        let rw_ptr: *mut u16 = regs_write.as_mut_ptr();
+
+        let mut regs_read_count: u8 = 0;
+        let mut regs_write_count: u8 = 0;
+        let rc_ptr: *mut u8 = &mut regs_read_count;
+        let wc_ptr: *mut u8 = &mut regs_write_count;
+
+        let res = unsafe {
+            cs_regs_access(self.csh,
+                           &insn.0 as *const cs_insn,
+                           rr_ptr,
+                           rc_ptr,
+                           rw_ptr,
+                           wc_ptr)
+        };
+
+        if res == 0 {
+            regs_read.truncate(regs_read_count as usize);
+            regs_write.truncate(regs_write_count as usize);
+            Ok((regs_read, regs_write))
+        } else {
+            Err(res.into())
+        }
+    }
+
     /// Returns list of ids of registers that are implicitly read by instruction `insn`.
-    pub fn read_register_ids<'i>(&self, insn: &'i Insn) -> CsResult<RegsIter<'i, u8>> {
+    pub fn read_register_ids<'i>(&self, insn: &'i Insn) -> CsResult<RegsIter<'i, u16>> {
         let detail = self.insn_detail(insn)?;
-        let reg_read_ids: RegsIter<'i, u8> = unsafe { mem::transmute(detail.regs_read()) };
+        let reg_read_ids: RegsIter<'i, u16> = unsafe { mem::transmute(detail.regs_read()) };
         Ok(reg_read_ids)
     }
 
@@ -397,9 +428,9 @@ impl Capstone {
     }
 
     /// Returns a list of ids of registers that are implicitly written to by the instruction `insn`.
-    pub fn write_register_ids<'i>(&self, insn: &'i Insn) -> CsResult<RegsIter<'i, u8>> {
+    pub fn write_register_ids<'i>(&self, insn: &'i Insn) -> CsResult<RegsIter<'i, u16>> {
         let detail = self.insn_detail(insn)?;
-        let reg_write_ids: RegsIter<'i, u8> = unsafe { mem::transmute(detail.regs_write()) };
+        let reg_write_ids: RegsIter<'i, u16> = unsafe { mem::transmute(detail.regs_write()) };
         Ok(reg_write_ids)
     }
 

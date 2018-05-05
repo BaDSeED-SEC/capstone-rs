@@ -172,7 +172,7 @@ impl Display for Insn {
 
 /// Iterator over registers ids
 #[derive(Debug, Clone)]
-pub struct RegsIter<'a, T: 'a + Into<RegIdInt> + Copy>(slice::Iter<'a, T>);
+pub struct RegsIter<'a, T: 'a + Into<RegIdInt> + Copy>(pub (crate) slice::Iter<'a, T>);
 
 impl<'a, T: 'a + Into<RegIdInt> + Copy> Iterator for RegsIter<'a, T> {
     type Item = RegId;
@@ -200,7 +200,7 @@ impl<'a> Iterator for InsnGroupIter<'a> {
 
 impl<'a> InsnDetail<'a> {
     /// Returns the implicit read registers
-    pub fn regs_read(&self) -> RegsIter<u8> {
+    pub fn regs_read(&self) -> RegsIter<u16> {
         RegsIter((*self.0).regs_read[..self.regs_read_count() as usize].iter())
     }
 
@@ -210,7 +210,7 @@ impl<'a> InsnDetail<'a> {
     }
 
     /// Returns the implicit write registers
-    pub fn regs_write(&self) -> RegsIter<u8> {
+    pub fn regs_write(&self) -> RegsIter<u16> {
         RegsIter((*self.0).regs_write[..self.regs_write_count() as usize].iter())
     }
 

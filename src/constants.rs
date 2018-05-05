@@ -78,7 +78,7 @@ define_cs_enum_wrapper!(
     /// Mips32r6 ISA
     => Mips32R6 = CS_MODE_MIPS32R6;
     /// General Purpose Registers are 64-bit wide (MIPS)
-    => MipsGP64 = CS_MODE_MIPSGP64;
+    => MipsGP64 = CS_MODE_MIPS64;
     /// SparcV9 mode (Sparc)
     => V9 = CS_MODE_V9;
     /// Default mode for little-endian
